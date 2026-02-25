@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Auditoría y Machine Learning</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-1d4f84655f446305ac42a8f1abcf7405.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Auditoría y Machine Learning</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="cell">
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'reticulate' was built under R version 4.5.2</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'dplyr' was built under R version 4.5.2</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Adjuntando el paquete: 'dplyr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    filter, lag</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'knitr' was built under R version 4.5.2</code></pre>
+</div>
+</div>
+<section id="carga-de-datos" class="level2">
+<h2 class="anchored" data-anchor-id="carga-de-datos">Carga de Datos</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cargar datos procesados</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>master_data <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"../data/processed/master_data.rds"</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Datos cargados:"</span>, <span class="fu">nrow</span>(master_data), <span class="st">"registros</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Datos cargados: 5479 registros</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(master_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       fecha temperatura plancton nitratos
+1 2010-01-01        9.04    20.67     5.39
+2 2010-01-02        9.85    20.78     5.71
+3 2010-01-03       13.59    20.90     5.59
+4 2010-01-04       10.77    35.16     4.69
+5 2010-01-05       11.05    26.17     4.20
+6 2010-01-06       14.37    23.97     5.49</code></pre>
+</div>
+</div>
+</section>
+<section id="detección-de-anomalías-con-isolation-forest" class="level2">
+<h2 class="anchored" data-anchor-id="detección-de-anomalías-con-isolation-forest">Detección de Anomalías con Isolation Forest</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> IsolationForest</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Obtener datos de R</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>r_data <span class="op">=</span> r.master_data</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Convertir a DataFrame de pandas</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">'temperatura'</span>: r_data[<span class="st">'temperatura'</span>],</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">'plancton'</span>: r_data[<span class="st">'plancton'</span>],</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">'nitratos'</span>: r_data[<span class="st">'nitratos'</span>]</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Normalizar datos para mejor detección</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>scaler <span class="op">=</span> StandardScaler()</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>df_scaled <span class="op">=</span> scaler.fit_transform(df)</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Aplicar Isolation Forest</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="co"># contamination: proporción esperada de outliers (ajustar según necesidad)</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>iso_forest <span class="op">=</span> IsolationForest(</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>    contamination<span class="op">=</span><span class="fl">0.01</span>,  <span class="co"># ~1% de outliers esperados</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>    random_state<span class="op">=</span><span class="dv">42</span>,</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>    n_estimators<span class="op">=</span><span class="dv">100</span></span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>anomaly_labels <span class="op">=</span> iso_forest.fit_predict(df_scaled)</span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>anomaly_scores <span class="op">=</span> iso_forest.score_samples(df_scaled)</span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear DataFrame con resultados y pasar a R</span></span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>results_df <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>    <span class="st">'anomaly_label'</span>: anomaly_labels,  <span class="co"># -1 = anomalía, 1 = normal</span></span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">'anomaly_score'</span>: anomaly_scores</span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Pasar resultados a R de forma explícita</span></span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>r.anomaly_labels <span class="op">=</span> anomaly_labels</span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a>r.anomaly_scores <span class="op">=</span> anomaly_scores</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="análisis-de-resultados" class="level2">
+<h2 class="anchored" data-anchor-id="análisis-de-resultados">Análisis de Resultados</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Combinar resultados con datos originales</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>audited_data <span class="ot">&lt;-</span> master_data <span class="sc">%&gt;%</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">anomaly_label =</span> py<span class="sc">$</span>anomaly_labels,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">anomaly_score =</span> py<span class="sc">$</span>anomaly_scores</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">is_anomaly =</span> anomaly_label <span class="sc">==</span> <span class="sc">-</span><span class="dv">1</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Filtrar anomalías detectadas</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>anomalies_detected <span class="ot">&lt;-</span> audited_data <span class="sc">%&gt;%</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(is_anomaly <span class="sc">==</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(<span class="fu">abs</span>(anomaly_score)))</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">=== RESUMEN DE AUDITORÍA ===</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+=== RESUMEN DE AUDITORÍA ===</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Total de registros:"</span>, <span class="fu">nrow</span>(audited_data), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Total de registros: 5479 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Anomalías detectadas:"</span>, <span class="fu">nrow</span>(anomalies_detected), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Anomalías detectadas: 55 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Porcentaje de anomalías:"</span>, <span class="fu">round</span>(<span class="dv">100</span> <span class="sc">*</span> <span class="fu">nrow</span>(anomalies_detected) <span class="sc">/</span> <span class="fu">nrow</span>(audited_data), <span class="dv">2</span>), <span class="st">"%</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Porcentaje de anomalías: 1 %</code></pre>
+</div>
+</div>
+</section>
+<section id="tabla-de-anomalías-detectadas" class="level2">
+<h2 class="anchored" data-anchor-id="tabla-de-anomalías-detectadas">Tabla de Anomalías Detectadas</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Mostrar tabla de anomalías</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">nrow</span>(anomalies_detected) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  anomalies_detected <span class="sc">%&gt;%</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(fecha, temperatura, plancton, nitratos, anomaly_score) <span class="sc">%&gt;%</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">2</span>, <span class="at">caption =</span> <span class="st">"Anomalías detectadas por Isolation Forest"</span>)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"No se detectaron anomalías.</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Anomalías detectadas por Isolation Forest</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">fecha</th>
+<th style="text-align: right;">temperatura</th>
+<th style="text-align: right;">plancton</th>
+<th style="text-align: right;">nitratos</th>
+<th style="text-align: right;">anomaly_score</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">2024-08-03</td>
+<td style="text-align: right;">116.89</td>
+<td style="text-align: right;">99.21</td>
+<td style="text-align: right;">4.02</td>
+<td style="text-align: right;">-0.6391311</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2024-07-05</td>
+<td style="text-align: right;">113.16</td>
+<td style="text-align: right;">106.94</td>
+<td style="text-align: right;">4.64</td>
+<td style="text-align: right;">-0.6358606</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2024-04-24</td>
+<td style="text-align: right;">125.90</td>
+<td style="text-align: right;">92.51</td>
+<td style="text-align: right;">7.23</td>
+<td style="text-align: right;">-0.6322042</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-07-13</td>
+<td style="text-align: right;">10.53</td>
+<td style="text-align: right;">100.86</td>
+<td style="text-align: right;">3.97</td>
+<td style="text-align: right;">-0.6272653</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2014-11-06</td>
+<td style="text-align: right;">37.42</td>
+<td style="text-align: right;">500.00</td>
+<td style="text-align: right;">2.64</td>
+<td style="text-align: right;">-0.6265400</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-09-18</td>
+<td style="text-align: right;">6.38</td>
+<td style="text-align: right;">58.48</td>
+<td style="text-align: right;">1.84</td>
+<td style="text-align: right;">-0.6265148</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2024-03-23</td>
+<td style="text-align: right;">123.70</td>
+<td style="text-align: right;">51.55</td>
+<td style="text-align: right;">8.19</td>
+<td style="text-align: right;">-0.6258195</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-07-03</td>
+<td style="text-align: right;">11.76</td>
+<td style="text-align: right;">98.83</td>
+<td style="text-align: right;">5.26</td>
+<td style="text-align: right;">-0.6225993</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2024-03-17</td>
+<td style="text-align: right;">122.49</td>
+<td style="text-align: right;">51.21</td>
+<td style="text-align: right;">8.03</td>
+<td style="text-align: right;">-0.6215896</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2024-04-08</td>
+<td style="text-align: right;">122.50</td>
+<td style="text-align: right;">59.63</td>
+<td style="text-align: right;">8.62</td>
+<td style="text-align: right;">-0.6214494</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2010-08-23</td>
+<td style="text-align: right;">7.28</td>
+<td style="text-align: right;">74.04</td>
+<td style="text-align: right;">2.40</td>
+<td style="text-align: right;">-0.6210996</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2024-03-09</td>
+<td style="text-align: right;">122.97</td>
+<td style="text-align: right;">48.93</td>
+<td style="text-align: right;">7.89</td>
+<td style="text-align: right;">-0.6210946</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2021-05-19</td>
+<td style="text-align: right;">99.79</td>
+<td style="text-align: right;">94.01</td>
+<td style="text-align: right;">7.80</td>
+<td style="text-align: right;">-0.6193262</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-10-29</td>
+<td style="text-align: right;">7.45</td>
+<td style="text-align: right;">39.68</td>
+<td style="text-align: right;">1.92</td>
+<td style="text-align: right;">-0.6186748</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2010-08-08</td>
+<td style="text-align: right;">7.03</td>
+<td style="text-align: right;">74.26</td>
+<td style="text-align: right;">2.53</td>
+<td style="text-align: right;">-0.6166376</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2023-06-28</td>
+<td style="text-align: right;">108.07</td>
+<td style="text-align: right;">97.99</td>
+<td style="text-align: right;">4.17</td>
+<td style="text-align: right;">-0.6148159</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2024-06-24</td>
+<td style="text-align: right;">118.19</td>
+<td style="text-align: right;">101.90</td>
+<td style="text-align: right;">5.52</td>
+<td style="text-align: right;">-0.6132684</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-03-21</td>
+<td style="text-align: right;">19.17</td>
+<td style="text-align: right;">55.33</td>
+<td style="text-align: right;">8.26</td>
+<td style="text-align: right;">-0.6123640</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2024-06-28</td>
+<td style="text-align: right;">115.21</td>
+<td style="text-align: right;">93.13</td>
+<td style="text-align: right;">4.64</td>
+<td style="text-align: right;">-0.6089123</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-04-18</td>
+<td style="text-align: right;">16.50</td>
+<td style="text-align: right;">67.04</td>
+<td style="text-align: right;">8.06</td>
+<td style="text-align: right;">-0.6086784</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2024-03-26</td>
+<td style="text-align: right;">123.93</td>
+<td style="text-align: right;">57.46</td>
+<td style="text-align: right;">7.72</td>
+<td style="text-align: right;">-0.6070134</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-07-25</td>
+<td style="text-align: right;">10.04</td>
+<td style="text-align: right;">89.95</td>
+<td style="text-align: right;">3.47</td>
+<td style="text-align: right;">-0.6067578</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2024-08-02</td>
+<td style="text-align: right;">112.29</td>
+<td style="text-align: right;">93.93</td>
+<td style="text-align: right;">3.75</td>
+<td style="text-align: right;">-0.6063522</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-08-21</td>
+<td style="text-align: right;">8.99</td>
+<td style="text-align: right;">76.54</td>
+<td style="text-align: right;">2.51</td>
+<td style="text-align: right;">-0.6060364</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2010-03-18</td>
+<td style="text-align: right;">18.73</td>
+<td style="text-align: right;">59.83</td>
+<td style="text-align: right;">8.12</td>
+<td style="text-align: right;">-0.6056141</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-09-17</td>
+<td style="text-align: right;">4.36</td>
+<td style="text-align: right;">54.26</td>
+<td style="text-align: right;">2.49</td>
+<td style="text-align: right;">-0.6055010</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2010-06-12</td>
+<td style="text-align: right;">13.39</td>
+<td style="text-align: right;">94.44</td>
+<td style="text-align: right;">5.88</td>
+<td style="text-align: right;">-0.6032845</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2022-06-21</td>
+<td style="text-align: right;">102.83</td>
+<td style="text-align: right;">110.35</td>
+<td style="text-align: right;">5.31</td>
+<td style="text-align: right;">-0.6024921</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2021-06-09</td>
+<td style="text-align: right;">97.35</td>
+<td style="text-align: right;">110.11</td>
+<td style="text-align: right;">6.40</td>
+<td style="text-align: right;">-0.6009924</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2023-05-26</td>
+<td style="text-align: right;">113.03</td>
+<td style="text-align: right;">100.57</td>
+<td style="text-align: right;">6.28</td>
+<td style="text-align: right;">-0.6005549</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2024-06-02</td>
+<td style="text-align: right;">120.10</td>
+<td style="text-align: right;">95.08</td>
+<td style="text-align: right;">5.79</td>
+<td style="text-align: right;">-0.6001612</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2011-09-27</td>
+<td style="text-align: right;">12.01</td>
+<td style="text-align: right;">46.20</td>
+<td style="text-align: right;">2.03</td>
+<td style="text-align: right;">-0.5999317</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2024-12-27</td>
+<td style="text-align: right;">122.28</td>
+<td style="text-align: right;">20.29</td>
+<td style="text-align: right;">3.81</td>
+<td style="text-align: right;">-0.5998923</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2024-02-17</td>
+<td style="text-align: right;">121.83</td>
+<td style="text-align: right;">34.31</td>
+<td style="text-align: right;">7.40</td>
+<td style="text-align: right;">-0.5990113</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2024-07-01</td>
+<td style="text-align: right;">115.42</td>
+<td style="text-align: right;">95.81</td>
+<td style="text-align: right;">5.15</td>
+<td style="text-align: right;">-0.5986395</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2023-05-16</td>
+<td style="text-align: right;">109.50</td>
+<td style="text-align: right;">98.33</td>
+<td style="text-align: right;">6.33</td>
+<td style="text-align: right;">-0.5979030</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2023-11-28</td>
+<td style="text-align: right;">108.69</td>
+<td style="text-align: right;">22.95</td>
+<td style="text-align: right;">2.35</td>
+<td style="text-align: right;">-0.5978375</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-04-25</td>
+<td style="text-align: right;">20.68</td>
+<td style="text-align: right;">89.05</td>
+<td style="text-align: right;">7.37</td>
+<td style="text-align: right;">-0.5976968</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2011-03-02</td>
+<td style="text-align: right;">24.56</td>
+<td style="text-align: right;">44.83</td>
+<td style="text-align: right;">8.11</td>
+<td style="text-align: right;">-0.5968280</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2024-05-08</td>
+<td style="text-align: right;">121.60</td>
+<td style="text-align: right;">91.03</td>
+<td style="text-align: right;">6.93</td>
+<td style="text-align: right;">-0.5966029</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2023-06-05</td>
+<td style="text-align: right;">111.99</td>
+<td style="text-align: right;">97.38</td>
+<td style="text-align: right;">5.67</td>
+<td style="text-align: right;">-0.5963540</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2022-05-19</td>
+<td style="text-align: right;">105.12</td>
+<td style="text-align: right;">99.19</td>
+<td style="text-align: right;">6.37</td>
+<td style="text-align: right;">-0.5963119</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2024-11-09</td>
+<td style="text-align: right;">108.94</td>
+<td style="text-align: right;">26.81</td>
+<td style="text-align: right;">2.26</td>
+<td style="text-align: right;">-0.5958030</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2022-06-10</td>
+<td style="text-align: right;">106.35</td>
+<td style="text-align: right;">96.83</td>
+<td style="text-align: right;">6.21</td>
+<td style="text-align: right;">-0.5956536</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2024-09-15</td>
+<td style="text-align: right;">108.92</td>
+<td style="text-align: right;">58.39</td>
+<td style="text-align: right;">25.00</td>
+<td style="text-align: right;">-0.5955197</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-09-06</td>
+<td style="text-align: right;">6.38</td>
+<td style="text-align: right;">62.71</td>
+<td style="text-align: right;">2.66</td>
+<td style="text-align: right;">-0.5953659</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2010-10-02</td>
+<td style="text-align: right;">9.20</td>
+<td style="text-align: right;">43.66</td>
+<td style="text-align: right;">2.30</td>
+<td style="text-align: right;">-0.5947000</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-04-30</td>
+<td style="text-align: right;">68.92</td>
+<td style="text-align: right;">107.53</td>
+<td style="text-align: right;">6.70</td>
+<td style="text-align: right;">-0.5946711</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2010-06-27</td>
+<td style="text-align: right;">14.82</td>
+<td style="text-align: right;">94.27</td>
+<td style="text-align: right;">5.41</td>
+<td style="text-align: right;">-0.5946058</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2010-07-10</td>
+<td style="text-align: right;">13.10</td>
+<td style="text-align: right;">90.18</td>
+<td style="text-align: right;">4.08</td>
+<td style="text-align: right;">-0.5945100</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2024-12-24</td>
+<td style="text-align: right;">123.38</td>
+<td style="text-align: right;">23.20</td>
+<td style="text-align: right;">5.33</td>
+<td style="text-align: right;">-0.5936922</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2011-05-31</td>
+<td style="text-align: right;">22.99</td>
+<td style="text-align: right;">115.34</td>
+<td style="text-align: right;">5.65</td>
+<td style="text-align: right;">-0.5933470</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2024-08-26</td>
+<td style="text-align: right;">110.12</td>
+<td style="text-align: right;">61.86</td>
+<td style="text-align: right;">1.96</td>
+<td style="text-align: right;">-0.5933098</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2024-10-08</td>
+<td style="text-align: right;">112.79</td>
+<td style="text-align: right;">40.19</td>
+<td style="text-align: right;">2.12</td>
+<td style="text-align: right;">-0.5930089</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2024-12-25</td>
+<td style="text-align: right;">122.38</td>
+<td style="text-align: right;">20.16</td>
+<td style="text-align: right;">4.08</td>
+<td style="text-align: right;">-0.5927227</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="guardar-datos-auditados" class="level2">
+<h2 class="anchored" data-anchor-id="guardar-datos-auditados">Guardar Datos Auditados</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Guardar datos auditados</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">dir.exists</span>(<span class="st">"../data/processed"</span>)) {</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dir.create</span>(<span class="st">"../data/processed"</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(audited_data, <span class="st">"../data/processed/audited_data.rds"</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Datos auditados guardados en: ../data/processed/audited_data.rds</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Datos auditados guardados en: ../data/processed/audited_data.rds</code></pre>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

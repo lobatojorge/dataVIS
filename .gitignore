@@ -1,0 +1,49 @@
+# Archivos de datos
+*.csv
+*.xlsx
+*.rds
+*.RData
+*.rda
+
+# Carpeta de datos (no subir datos sensibles)
+data/
+
+# Quarto: salida y cachés temporales
+.quarto/
+**/*.quarto_ipynb
+
+# Python: bytecode y cachés
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+.eggs/
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+.env/
+
+# R: sesiones y cachés
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj.user/
+
+# IDE y editores
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Sistema
+.DS_Store
+Thumbs.db

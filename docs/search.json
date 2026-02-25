@@ -1,0 +1,44 @@
+[
+  {
+    "objectID": "scripts/02_audit_ml.html",
+    "href": "scripts/02_audit_ml.html",
+    "title": "Auditoría y Machine Learning",
+    "section": "",
+    "text": "Warning: package 'reticulate' was built under R version 4.5.2\n\n\nWarning: package 'dplyr' was built under R version 4.5.2\n\n\n\nAdjuntando el paquete: 'dplyr'\n\n\nThe following objects are masked from 'package:stats':\n\n    filter, lag\n\n\nThe following objects are masked from 'package:base':\n\n    intersect, setdiff, setequal, union\n\n\nWarning: package 'knitr' was built under R version 4.5.2"
+  },
+  {
+    "objectID": "scripts/02_audit_ml.html#carga-de-datos",
+    "href": "scripts/02_audit_ml.html#carga-de-datos",
+    "title": "Auditoría y Machine Learning",
+    "section": "Carga de Datos",
+    "text": "Carga de Datos\n\n# Cargar datos procesados\nmaster_data &lt;- readRDS(\"../data/processed/master_data.rds\")\n\ncat(\"Datos cargados:\", nrow(master_data), \"registros\\n\")\n\nDatos cargados: 5479 registros\n\nhead(master_data)\n\n       fecha temperatura plancton nitratos\n1 2010-01-01        9.04    20.67     5.39\n2 2010-01-02        9.85    20.78     5.71\n3 2010-01-03       13.59    20.90     5.59\n4 2010-01-04       10.77    35.16     4.69\n5 2010-01-05       11.05    26.17     4.20\n6 2010-01-06       14.37    23.97     5.49"
+  },
+  {
+    "objectID": "scripts/02_audit_ml.html#detección-de-anomalías-con-isolation-forest",
+    "href": "scripts/02_audit_ml.html#detección-de-anomalías-con-isolation-forest",
+    "title": "Auditoría y Machine Learning",
+    "section": "Detección de Anomalías con Isolation Forest",
+    "text": "Detección de Anomalías con Isolation Forest\n\nimport pandas as pd\nimport numpy as np\nfrom sklearn.ensemble import IsolationForest\nfrom sklearn.preprocessing import StandardScaler\n\n# Obtener datos de R\nr_data = r.master_data\n\n# Convertir a DataFrame de pandas\ndf = pd.DataFrame({\n    'temperatura': r_data['temperatura'],\n    'plancton': r_data['plancton'],\n    'nitratos': r_data['nitratos']\n})\n\n# Normalizar datos para mejor detección\nscaler = StandardScaler()\ndf_scaled = scaler.fit_transform(df)\n\n# Aplicar Isolation Forest\n# contamination: proporción esperada de outliers (ajustar según necesidad)\niso_forest = IsolationForest(\n    contamination=0.01,  # ~1% de outliers esperados\n    random_state=42,\n    n_estimators=100\n)\n\nanomaly_labels = iso_forest.fit_predict(df_scaled)\nanomaly_scores = iso_forest.score_samples(df_scaled)\n\n# Crear DataFrame con resultados y pasar a R\nresults_df = pd.DataFrame({\n    'anomaly_label': anomaly_labels,  # -1 = anomalía, 1 = normal\n    'anomaly_score': anomaly_scores\n})\n\n# Pasar resultados a R de forma explícita\nr.anomaly_labels = anomaly_labels\nr.anomaly_scores = anomaly_scores"
+  },
+  {
+    "objectID": "scripts/02_audit_ml.html#análisis-de-resultados",
+    "href": "scripts/02_audit_ml.html#análisis-de-resultados",
+    "title": "Auditoría y Machine Learning",
+    "section": "Análisis de Resultados",
+    "text": "Análisis de Resultados\n\n# Combinar resultados con datos originales\naudited_data &lt;- master_data %&gt;%\n  bind_cols(\n    anomaly_label = py$anomaly_labels,\n    anomaly_score = py$anomaly_scores\n  ) %&gt;%\n  mutate(\n    is_anomaly = anomaly_label == -1\n  )\n\n# Filtrar anomalías detectadas\nanomalies_detected &lt;- audited_data %&gt;%\n  filter(is_anomaly == TRUE) %&gt;%\n  arrange(desc(abs(anomaly_score)))\n\ncat(\"\\n=== RESUMEN DE AUDITORÍA ===\\n\")\n\n\n=== RESUMEN DE AUDITORÍA ===\n\ncat(\"Total de registros:\", nrow(audited_data), \"\\n\")\n\nTotal de registros: 5479 \n\ncat(\"Anomalías detectadas:\", nrow(anomalies_detected), \"\\n\")\n\nAnomalías detectadas: 55 \n\ncat(\"Porcentaje de anomalías:\", round(100 * nrow(anomalies_detected) / nrow(audited_data), 2), \"%\\n\")\n\nPorcentaje de anomalías: 1 %"
+  },
+  {
+    "objectID": "scripts/02_audit_ml.html#tabla-de-anomalías-detectadas",
+    "href": "scripts/02_audit_ml.html#tabla-de-anomalías-detectadas",
+    "title": "Auditoría y Machine Learning",
+    "section": "Tabla de Anomalías Detectadas",
+    "text": "Tabla de Anomalías Detectadas\n\n# Mostrar tabla de anomalías\nif (nrow(anomalies_detected) &gt; 0) {\n  anomalies_detected %&gt;%\n    select(fecha, temperatura, plancton, nitratos, anomaly_score) %&gt;%\n    kable(digits = 2, caption = \"Anomalías detectadas por Isolation Forest\")\n} else {\n  cat(\"No se detectaron anomalías.\\n\")\n}\n\n\nAnomalías detectadas por Isolation Forest\n\n\nfecha\ntemperatura\nplancton\nnitratos\nanomaly_score\n\n\n\n\n2024-08-03\n116.89\n99.21\n4.02\n-0.6391311\n\n\n2024-07-05\n113.16\n106.94\n4.64\n-0.6358606\n\n\n2024-04-24\n125.90\n92.51\n7.23\n-0.6322042\n\n\n2010-07-13\n10.53\n100.86\n3.97\n-0.6272653\n\n\n2014-11-06\n37.42\n500.00\n2.64\n-0.6265400\n\n\n2010-09-18\n6.38\n58.48\n1.84\n-0.6265148\n\n\n2024-03-23\n123.70\n51.55\n8.19\n-0.6258195\n\n\n2010-07-03\n11.76\n98.83\n5.26\n-0.6225993\n\n\n2024-03-17\n122.49\n51.21\n8.03\n-0.6215896\n\n\n2024-04-08\n122.50\n59.63\n8.62\n-0.6214494\n\n\n2010-08-23\n7.28\n74.04\n2.40\n-0.6210996\n\n\n2024-03-09\n122.97\n48.93\n7.89\n-0.6210946\n\n\n2021-05-19\n99.79\n94.01\n7.80\n-0.6193262\n\n\n2010-10-29\n7.45\n39.68\n1.92\n-0.6186748\n\n\n2010-08-08\n7.03\n74.26\n2.53\n-0.6166376\n\n\n2023-06-28\n108.07\n97.99\n4.17\n-0.6148159\n\n\n2024-06-24\n118.19\n101.90\n5.52\n-0.6132684\n\n\n2010-03-21\n19.17\n55.33\n8.26\n-0.6123640\n\n\n2024-06-28\n115.21\n93.13\n4.64\n-0.6089123\n\n\n2010-04-18\n16.50\n67.04\n8.06\n-0.6086784\n\n\n2024-03-26\n123.93\n57.46\n7.72\n-0.6070134\n\n\n2010-07-25\n10.04\n89.95\n3.47\n-0.6067578\n\n\n2024-08-02\n112.29\n93.93\n3.75\n-0.6063522\n\n\n2010-08-21\n8.99\n76.54\n2.51\n-0.6060364\n\n\n2010-03-18\n18.73\n59.83\n8.12\n-0.6056141\n\n\n2010-09-17\n4.36\n54.26\n2.49\n-0.6055010\n\n\n2010-06-12\n13.39\n94.44\n5.88\n-0.6032845\n\n\n2022-06-21\n102.83\n110.35\n5.31\n-0.6024921\n\n\n2021-06-09\n97.35\n110.11\n6.40\n-0.6009924\n\n\n2023-05-26\n113.03\n100.57\n6.28\n-0.6005549\n\n\n2024-06-02\n120.10\n95.08\n5.79\n-0.6001612\n\n\n2011-09-27\n12.01\n46.20\n2.03\n-0.5999317\n\n\n2024-12-27\n122.28\n20.29\n3.81\n-0.5998923\n\n\n2024-02-17\n121.83\n34.31\n7.40\n-0.5990113\n\n\n2024-07-01\n115.42\n95.81\n5.15\n-0.5986395\n\n\n2023-05-16\n109.50\n98.33\n6.33\n-0.5979030\n\n\n2023-11-28\n108.69\n22.95\n2.35\n-0.5978375\n\n\n2010-04-25\n20.68\n89.05\n7.37\n-0.5976968\n\n\n2011-03-02\n24.56\n44.83\n8.11\n-0.5968280\n\n\n2024-05-08\n121.60\n91.03\n6.93\n-0.5966029\n\n\n2023-06-05\n111.99\n97.38\n5.67\n-0.5963540\n\n\n2022-05-19\n105.12\n99.19\n6.37\n-0.5963119\n\n\n2024-11-09\n108.94\n26.81\n2.26\n-0.5958030\n\n\n2022-06-10\n106.35\n96.83\n6.21\n-0.5956536\n\n\n2024-09-15\n108.92\n58.39\n25.00\n-0.5955197\n\n\n2010-09-06\n6.38\n62.71\n2.66\n-0.5953659\n\n\n2010-10-02\n9.20\n43.66\n2.30\n-0.5947000\n\n\n2017-04-30\n68.92\n107.53\n6.70\n-0.5946711\n\n\n2010-06-27\n14.82\n94.27\n5.41\n-0.5946058\n\n\n2010-07-10\n13.10\n90.18\n4.08\n-0.5945100\n\n\n2024-12-24\n123.38\n23.20\n5.33\n-0.5936922\n\n\n2011-05-31\n22.99\n115.34\n5.65\n-0.5933470\n\n\n2024-08-26\n110.12\n61.86\n1.96\n-0.5933098\n\n\n2024-10-08\n112.79\n40.19\n2.12\n-0.5930089\n\n\n2024-12-25\n122.38\n20.16\n4.08\n-0.5927227"
+  },
+  {
+    "objectID": "scripts/02_audit_ml.html#guardar-datos-auditados",
+    "href": "scripts/02_audit_ml.html#guardar-datos-auditados",
+    "title": "Auditoría y Machine Learning",
+    "section": "Guardar Datos Auditados",
+    "text": "Guardar Datos Auditados\n\n# Guardar datos auditados\nif (!dir.exists(\"../data/processed\")) {\n  dir.create(\"../data/processed\", recursive = TRUE)\n}\n\nsaveRDS(audited_data, \"../data/processed/audited_data.rds\")\n\ncat(\"\\nDatos auditados guardados en: ../data/processed/audited_data.rds\\n\")\n\n\nDatos auditados guardados en: ../data/processed/audited_data.rds"
+  }
+]

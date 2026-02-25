@@ -1,0 +1,127 @@
+---
+title: "Auditoría y Machine Learning"
+format: html
+engine: knitr
+---
+
+```{r setup}
+#| echo: false
+# Configuración de reticulate para usar Python
+library(reticulate)
+library(dplyr)
+library(knitr)
+
+# Intentar forzar el uso del entorno r-reticulate donde ya instalamos todo
+tryCatch({
+  use_condaenv("r-reticulate", required = TRUE)
+}, error = function(e) {
+  message("No se encontró r-reticulate, intentando con miniconda por defecto...")
+})
+```
+
+## Carga de Datos
+
+```{r load-data}
+# Cargar datos procesados
+master_data <- readRDS("../data/processed/master_data.rds")
+
+cat("Datos cargados:", nrow(master_data), "registros\n")
+head(master_data)
+```
+
+## Detección de Anomalías con Isolation Forest
+
+```{python}
+#| echo: true
+#| warning: false
+import pandas as pd
+import numpy as np
+from sklearn.ensemble import IsolationForest
+from sklearn.preprocessing import StandardScaler
+
+# Obtener datos de R
+r_data = r.master_data
+
+# Convertir a DataFrame de pandas
+df = pd.DataFrame({
+    'temperatura': r_data['temperatura'],
+    'plancton': r_data['plancton'],
+    'nitratos': r_data['nitratos']
+})
+
+# Normalizar datos para mejor detección
+scaler = StandardScaler()
+df_scaled = scaler.fit_transform(df)
+
+# Aplicar Isolation Forest
+# contamination: proporción esperada de outliers (ajustar según necesidad)
+iso_forest = IsolationForest(
+    contamination=0.01,  # ~1% de outliers esperados
+    random_state=42,
+    n_estimators=100
+)
+
+anomaly_labels = iso_forest.fit_predict(df_scaled)
+anomaly_scores = iso_forest.score_samples(df_scaled)
+
+# Crear DataFrame con resultados y pasar a R
+results_df = pd.DataFrame({
+    'anomaly_label': anomaly_labels,  # -1 = anomalía, 1 = normal
+    'anomaly_score': anomaly_scores
+})
+
+# Pasar resultados a R de forma explícita
+r.anomaly_labels = anomaly_labels
+r.anomaly_scores = anomaly_scores
+```
+
+## Análisis de Resultados
+
+```{r merge-results}
+# Combinar resultados con datos originales
+audited_data <- master_data %>%
+  bind_cols(
+    anomaly_label = py$anomaly_labels,
+    anomaly_score = py$anomaly_scores
+  ) %>%
+  mutate(
+    is_anomaly = anomaly_label == -1
+  )
+
+# Filtrar anomalías detectadas
+anomalies_detected <- audited_data %>%
+  filter(is_anomaly == TRUE) %>%
+  arrange(desc(abs(anomaly_score)))
+
+cat("\n=== RESUMEN DE AUDITORÍA ===\n")
+cat("Total de registros:", nrow(audited_data), "\n")
+cat("Anomalías detectadas:", nrow(anomalies_detected), "\n")
+cat("Porcentaje de anomalías:", round(100 * nrow(anomalies_detected) / nrow(audited_data), 2), "%\n")
+```
+
+## Tabla de Anomalías Detectadas
+
+```{r show-anomalies}
+#| echo: true
+# Mostrar tabla de anomalías
+if (nrow(anomalies_detected) > 0) {
+  anomalies_detected %>%
+    select(fecha, temperatura, plancton, nitratos, anomaly_score) %>%
+    kable(digits = 2, caption = "Anomalías detectadas por Isolation Forest")
+} else {
+  cat("No se detectaron anomalías.\n")
+}
+```
+
+## Guardar Datos Auditados
+
+```{r save-audited}
+# Guardar datos auditados
+if (!dir.exists("../data/processed")) {
+  dir.create("../data/processed", recursive = TRUE)
+}
+
+saveRDS(audited_data, "../data/processed/audited_data.rds")
+
+cat("\nDatos auditados guardados en: ../data/processed/audited_data.rds\n")
+```

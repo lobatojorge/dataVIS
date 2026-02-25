@@ -1,0 +1,363 @@
+---
+title: "Ecosystem Health & Data Forensics"
+format: dashboard
+---
+
+```{r setup}
+#| include: false
+library(tidyverse)
+library(bslib)
+library(bsicons)
+library(reactable)
+library(htmltools)
+library(plotly)
+
+# Cargar datos auditados
+audited_data <- readRDS("../data/processed/audited_data.rds")
+
+# Función de diagnóstico inteligente para variables
+generar_tarjeta_variable <- function(data, variable_name) {
+  
+  # Extraer la variable y fecha
+  var_data <- data[[variable_name]]
+  fecha_data <- data$fecha
+  
+  # Calcular estadísticas básicas
+  media <- mean(var_data, na.rm = TRUE)
+  desv_std <- sd(var_data, na.rm = TRUE)
+  pct_ceros <- 100 * sum(var_data == 0, na.rm = TRUE) / sum(!is.na(var_data))
+  
+  # Calcular tendencia (pendiente de regresión lineal sobre el tiempo)
+  # Convertir fecha a numérico (días desde inicio)
+  fecha_numeric <- as.numeric(fecha_data - min(fecha_data, na.rm = TRUE))
+  modelo_tendencia <- lm(var_data ~ fecha_numeric, na.action = na.exclude)
+  pendiente <- coef(modelo_tendencia)[2]
+  p_valor_tendencia <- summary(modelo_tendencia)$coefficients[2, 4]
+  tendencia_fuerte <- abs(pendiente) > (desv_std * 0.01) & p_valor_tendencia < 0.05
+  
+  # Detectar si es conteo (enteros positivos)
+  es_conteo <- all(var_data >= 0, na.rm = TRUE) && 
+               all(var_data == floor(var_data), na.rm = TRUE) &&
+               min(var_data, na.rm = TRUE) >= 0
+  
+  # Test de normalidad (Shapiro-Wilk) - solo si hay suficientes datos
+  normalidad <- NULL
+  if (length(var_data[!is.na(var_data)]) >= 3 && length(var_data[!is.na(var_data)]) <= 5000) {
+    test_shapiro <- shapiro.test(var_data[!is.na(var_data)])
+    normalidad <- test_shapiro$p.value > 0.05
+    p_valor_shapiro <- test_shapiro$p.value
+  } else {
+    normalidad <- FALSE
+    p_valor_shapiro <- NA
+  }
+  
+  # Motor de recomendación
+  recomendaciones <- c()
+  
+  # Recomendación 1: Normalidad
+  if (normalidad && !es_conteo) {
+    recomendaciones <- c(recomendaciones, "Modelo Lineal (GLM) o GAM Gaussiano")
+  }
+  
+  # Recomendación 2: Muchos ceros
+  if (pct_ceros > 20) {
+    recomendaciones <- c(recomendaciones, "Modelo Zero-Inflated o Delta-GAM")
+  }
+  
+  # Recomendación 3: Conteo
+  if (es_conteo) {
+    recomendaciones <- c(recomendaciones, "Distribución Poisson/Negative Binomial")
+  }
+  
+  # Recomendación 4: Tendencia fuerte
+  if (tendencia_fuerte) {
+    recomendaciones <- c(recomendaciones, "Incluir término suave s(year)")
+  }
+  
+  # Si no hay recomendaciones específicas, sugerir GAM genérico
+  if (length(recomendaciones) == 0) {
+    recomendaciones <- c("GAM con distribución apropiada (explorar Gamma, Tweedie, etc.)")
+  }
+  
+  # Crear lista de resultados
+  resultado <- list(
+    variable = variable_name,
+    estadisticas = list(
+      media = round(media, 2),
+      desviacion_estandar = round(desv_std, 2),
+      porcentaje_ceros = round(pct_ceros, 2),
+      pendiente_tendencia = round(pendiente, 6),
+      p_valor_tendencia = round(p_valor_tendencia, 4),
+      tendencia_fuerte = tendencia_fuerte
+    ),
+    caracteristicas = list(
+      es_conteo = es_conteo,
+      es_normal = normalidad,
+      p_valor_shapiro = if(!is.na(p_valor_shapiro)) round(p_valor_shapiro, 4) else NA
+    ),
+    recomendaciones = recomendaciones
+  )
+  
+  # Generar texto formateado para visualización
+  texto_formateado <- paste0(
+    "**Variable:** ", variable_name, "\n\n",
+    "**Estadísticas:**\n",
+    "- Media: ", round(media, 2), "\n",
+    "- Desviación Estándar: ", round(desv_std, 2), "\n",
+    "- % Ceros: ", round(pct_ceros, 2), "%\n",
+    "- Pendiente Tendencia: ", round(pendiente, 6), 
+    if(tendencia_fuerte) " (significativa)" else " (no significativa)", "\n\n",
+    "**Características:**\n",
+    "- Es Conteo: ", if(es_conteo) "Sí" else "No", "\n",
+    "- Distribución Normal: ", if(normalidad) "Sí" else "No",
+    if(!is.na(p_valor_shapiro)) paste0(" (p = ", round(p_valor_shapiro, 4), ")") else "", "\n\n",
+    "**Recomendaciones de Modelado:**\n",
+    paste("- ", recomendaciones, collapse = "\n")
+  )
+  
+  resultado$texto_formateado <- texto_formateado
+  
+  return(resultado)
+}
+```
+
+## Row {height=30%}
+
+### Tabla Resumen del Dataset
+
+```{r summary-table}
+#| echo: false
+
+# Preparar datos resumen
+summary_df <- audited_data %>%
+  summarise(
+    `Nombre Dataset` = "Norwegian Sea",
+    `Registros` = n(),
+    `Variables` = paste(c("temperatura", "plancton", "nitratos"), collapse = ", "),
+    `Anomalías Totales` = sum(is_anomaly, na.rm = TRUE),
+    `Porcentaje Anomalías` = round(100 * sum(is_anomaly, na.rm = TRUE) / n(), 2)
+  ) %>%
+  mutate(
+    `Salud del Dato` = if_else(`Porcentaje Anomalías` < 1, "saludable", "problematico")
+  )
+
+# Crear tabla interactiva con reactable
+reactable(
+  summary_df %>%
+    select(`Nombre Dataset`, `Registros`, `Variables`, `Anomalías Totales`, `Salud del Dato`),
+  columns = list(
+    `Nombre Dataset` = colDef(name = "Nombre Dataset"),
+    `Registros` = colDef(
+      name = "Registros",
+      format = colFormat(separators = TRUE)
+    ),
+    `Variables` = colDef(name = "Variables"),
+    `Anomalías Totales` = colDef(
+      name = "Anomalías Totales",
+      format = colFormat(separators = TRUE)
+    ),
+    `Salud del Dato` = colDef(
+      name = "Salud del Dato",
+      cell = function(value) {
+        if (value == "saludable") {
+          tags$span(
+            bs_icon("check-circle-fill", class = "text-success"),
+            " Saludable"
+          )
+        } else {
+          tags$span(
+            bs_icon("exclamation-triangle-fill", class = "text-danger"),
+            " Problemático"
+          )
+        }
+      },
+      html = TRUE
+    )
+  ),
+  bordered = TRUE,
+  striped = TRUE,
+  highlight = TRUE,
+  defaultPageSize = 10
+)
+```
+
+## Row {height=70%}
+
+### Análisis Detallado por Variable
+
+```{r analysis-tabs}
+#| echo: false
+
+# Row 2: Pestañas de Análisis
+navset_card_tab(
+  # Pestaña 1: Temperatura
+  nav_panel("Temperatura",
+    layout_columns(
+      col_widths = c(4, 8), # 4 para texto, 8 para gráfico
+      
+      # Columna Izquierda: Tarjeta de Recomendaciones
+      card(
+        card_header("Diagnóstico IA"),
+        card_body({
+          diagnostico_temp <- generar_tarjeta_variable(audited_data, "temperatura")
+          tagList(
+            HTML(
+              paste0(
+                "<div style='background-color: #f8f9fa; padding: 15px; border-radius: 5px;'>",
+                "<h5><strong>Estadísticas</strong></h5>",
+                "<ul>",
+                "<li><strong>Media:</strong> ", diagnostico_temp$estadisticas$media, "°C</li>",
+                "<li><strong>Desviación Estándar:</strong> ", diagnostico_temp$estadisticas$desviacion_estandar, "</li>",
+                "<li><strong>% Ceros:</strong> ", diagnostico_temp$estadisticas$porcentaje_ceros, "%</li>",
+                "<li><strong>Pendiente Tendencia:</strong> ", diagnostico_temp$estadisticas$pendiente_tendencia,
+                if(diagnostico_temp$estadisticas$tendencia_fuerte) " <span style='color: red;'>(significativa)</span>" else " (no significativa)", "</li>",
+                "</ul>",
+                "<h5><strong>Características</strong></h5>",
+                "<ul>",
+                "<li><strong>Es Conteo:</strong> ", if(diagnostico_temp$caracteristicas$es_conteo) "Sí" else "No", "</li>",
+                "<li><strong>Distribución Normal:</strong> ", if(diagnostico_temp$caracteristicas$es_normal) "Sí" else "No",
+                if(!is.na(diagnostico_temp$caracteristicas$p_valor_shapiro)) paste0(" (p = ", diagnostico_temp$caracteristicas$p_valor_shapiro, ")") else "", "</li>",
+                "</ul>",
+                "<h5><strong style='color: #0066cc; font-size: 1.1em;'>Recomendación de Modelado:</strong></h5>",
+                "<ul>",
+                paste0("<li><strong>", diagnostico_temp$recomendaciones, "</strong></li>", collapse = ""),
+                "</ul>",
+                "</div>"
+              )
+            )
+          )
+        })
+      ),
+      
+      # Columna Derecha: Gráfico
+      card(
+        card_header("Serie Temporal"),
+        card_body({
+          plot_data_temp <- audited_data %>%
+            mutate(
+              color_anomaly = if_else(is_anomaly, "red", "gray"),
+              size_anomaly = if_else(is_anomaly, 6, 3)
+            )
+          
+          plot_ly(
+            data = plot_data_temp,
+            x = ~fecha,
+            y = ~temperatura,
+            type = "scatter",
+            mode = "markers+lines",
+            marker = list(
+              color = ~color_anomaly,
+              size = ~size_anomaly,
+              line = list(
+                width = if_else(plot_data_temp$is_anomaly, 2, 0.5),
+                color = if_else(plot_data_temp$is_anomaly, "darkred", "gray")
+              )
+            ),
+            line = list(color = "gray", width = 1),
+            text = ~paste(
+              "Fecha:", fecha, "<br>",
+              "Temperatura:", temperatura, "°C<br>",
+              if_else(is_anomaly, 
+                      paste0("<span style='color:red;'><strong>ANOMALÍA DETECTADA</strong><br>Score: ", round(anomaly_score, 3), "</span>"), 
+                      "Dato normal")
+            ),
+            hoverinfo = "text"
+          ) %>%
+            layout(
+              title = list(text = "Serie Temporal de Temperatura", font = list(size = 14)),
+              xaxis = list(title = "Fecha"),
+              yaxis = list(title = "Temperatura (°C)"),
+              hovermode = "closest",
+              showlegend = FALSE
+            )
+        })
+      )
+    )
+  ),
+  
+  # Pestaña 2: Plancton
+  nav_panel("Plancton",
+    layout_columns(
+      col_widths = c(4, 8), # 4 para texto, 8 para gráfico
+      
+      # Columna Izquierda: Tarjeta de Recomendaciones
+      card(
+        card_header("Diagnóstico IA"),
+        card_body({
+          diagnostico_plancton <- generar_tarjeta_variable(audited_data, "plancton")
+          tagList(
+            HTML(
+              paste0(
+                "<div style='background-color: #f8f9fa; padding: 15px; border-radius: 5px;'>",
+                "<h5><strong>Estadísticas</strong></h5>",
+                "<ul>",
+                "<li><strong>Media:</strong> ", diagnostico_plancton$estadisticas$media, "</li>",
+                "<li><strong>Desviación Estándar:</strong> ", diagnostico_plancton$estadisticas$desviacion_estandar, "</li>",
+                "<li><strong>% Ceros:</strong> ", diagnostico_plancton$estadisticas$porcentaje_ceros, "%</li>",
+                "<li><strong>Pendiente Tendencia:</strong> ", diagnostico_plancton$estadisticas$pendiente_tendencia,
+                if(diagnostico_plancton$estadisticas$tendencia_fuerte) " <span style='color: red;'>(significativa)</span>" else " (no significativa)", "</li>",
+                "</ul>",
+                "<h5><strong>Características</strong></h5>",
+                "<ul>",
+                "<li><strong>Es Conteo:</strong> ", if(diagnostico_plancton$caracteristicas$es_conteo) "Sí" else "No", "</li>",
+                "<li><strong>Distribución Normal:</strong> ", if(diagnostico_plancton$caracteristicas$es_normal) "Sí" else "No",
+                if(!is.na(diagnostico_plancton$caracteristicas$p_valor_shapiro)) paste0(" (p = ", diagnostico_plancton$caracteristicas$p_valor_shapiro, ")") else "", "</li>",
+                "</ul>",
+                "<h5><strong style='color: #0066cc; font-size: 1.1em;'>Recomendación de Modelado:</strong></h5>",
+                "<ul>",
+                paste0("<li><strong>", diagnostico_plancton$recomendaciones, "</strong></li>", collapse = ""),
+                "</ul>",
+                "</div>"
+              )
+            )
+          )
+        })
+      ),
+      
+      # Columna Derecha: Gráfico
+      card(
+        card_header("Serie Temporal"),
+        card_body({
+          plot_data_plancton <- audited_data %>%
+            mutate(
+              color_anomaly = if_else(is_anomaly, "red", "gray"),
+              size_anomaly = if_else(is_anomaly, 6, 3)
+            )
+          
+          plot_ly(
+            data = plot_data_plancton,
+            x = ~fecha,
+            y = ~plancton,
+            type = "scatter",
+            mode = "markers+lines",
+            marker = list(
+              color = ~color_anomaly,
+              size = ~size_anomaly,
+              line = list(
+                width = if_else(plot_data_plancton$is_anomaly, 2, 0.5),
+                color = if_else(plot_data_plancton$is_anomaly, "darkred", "gray")
+              )
+            ),
+            line = list(color = "gray", width = 1),
+            text = ~paste(
+              "Fecha:", fecha, "<br>",
+              "Plancton:", plancton, "<br>",
+              if_else(is_anomaly, 
+                      paste0("<span style='color:red;'><strong>ANOMALÍA DETECTADA</strong><br>Score: ", round(anomaly_score, 3), "</span>"), 
+                      "Dato normal")
+            ),
+            hoverinfo = "text"
+          ) %>%
+            layout(
+              title = list(text = "Serie Temporal de Plancton", font = list(size = 14)),
+              xaxis = list(title = "Fecha"),
+              yaxis = list(title = "Plancton"),
+              hovermode = "closest",
+              showlegend = FALSE
+            )
+        })
+      )
+    )
+  )
+)
+```
