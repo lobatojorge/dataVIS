@@ -1,60 +1,42 @@
-# rap+ia · RAP con IA para Auditoría de Datos Marinos
+# Data Visualization
 
-[![R](https://img.shields.io/badge/R-276DC3?style=flat-square&logo=r&logoColor=white)](https://www.r-project.org/)
-[![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
-[![Quarto](https://img.shields.io/badge/Quarto-1971B2?style=flat-square&logo=quarto&logoColor=white)](https://quarto.org/)
+En este repositorio recojo una infraestructura completa diseñada para procesar, auditar y visualizar los datos históricos de las radiales oceanográficas del Instituto Español de Oceanografía (IEO)
 
-**Reproducible Analytical Pipeline** que combina **R**, **Python** (scikit-learn) y **Quarto** para la auditoría forense y visualización de series temporales de ecología marina mediante detección de anomalías con **Isolation Forest**.
+El objetivo principal es pasar de tener Excels estáticos a un **Sistema de Apoyo a la Decisión (DSS)** interactivo, replicando y escalando los estándares del ICES (como el modelo ATAC del WGINOR) y aplicando principios de Oceanic Data Architecture
 
+## 
+
+En lugar de tener un "código espagueti" que haga todo a la vez y reviente por cualquier lado, el sistema está troceado en especialistas (agentes):
+
+1. **Ingesta:** Traga los Excels crudos del IEO, estandariza nombres, limpia los formatos de fecha y prepara el terreno. Los datos crudos **nunca** se tocan
+2. **El Auditor Forense (Data Observability):** Antes de graficar, empleamos Machine Learning no supervisado (`IsolationForest`) para detectar inconsistencias en los datos (temperaturas imposibles, picos irreales) y genera un reporte de calidad que ayuda al investigador a tomar decisiones sobre el futuro modelado
+3. **Forecasting:** Un motor predictivo para series temporales que calcula la tendencia y el pronóstico de los próximos años con sus respectivos intervalos de confianza. Basado en la metodología del WGINOR
+4. **El Escaparate (Streamlit DSS):** Un dashboard interactivo donde el usuario puede explorar los datos
+
+## Stack Tecnológico
+
+* **Core & Datos:** Python, Pandas, Pathlib (eliminación de rutas absolutas para mejorar la reproducibilidad)
+* **Machine Learning:** Scikit-learn (Isolation Forest) y modelos de Forecasting
+* **Frontend interactivo:** Streamlit + Plotly
+
+
+## 🚀 Cómo ejecutarlo
+
+Clona el repo y desde la cmd:
+
+1. **Instala las dependencias:**
+   ```bash
+   pip install -r requirements.txt
 ---
-
-## Problema
-
-Las series temporales de datos marinos (temperatura, salinidad, nutrientes, biomasa, etc.) suelen contener **ruido, valores aberrantes y anomalías** que distorsionan análisis y decisiones. Revisar manualmente millones de registros no es viable y retrasa la publicación de indicadores fiables.
-
-## Solución
-
-- **Auditoría forense automatizada** con modelos de **Inteligencia Artificial** (Isolation Forest) para marcar y priorizar anomalías en los datos.
-- **Dashboard interactivo** generado con Quarto que permite explorar series, diagnósticos por variable y resultados de la auditoría.
-- Pipeline **reproducible** (R + Python + Quarto) listo para integrarse en flujos de calidad de datos del IEO.
-
----
-
-## Estructura del proyecto
-
+2. Ejecuta el pipeline interno:
+Esto procesa los datos crudos, pasa la auditoría forense y genera los resultados predictivos
+```bash
+python main.py
 ```
-rap+ia/
-├── dashboard/           # Aplicación Quarto (dashboard interactivo)
-│   └── index.qmd
-├── scripts/             # Pipeline: ingesta, auditoría ML y modelos
-│   ├── 01_ingest.R
-│   ├── 02_audit_ml.qmd  # Auditoría con Isolation Forest (R + Python)
-│   └── 03_models.R
-├── data/                # Datos crudos y procesados (no versionados)
-│   ├── raw/
-│   └── processed/
-├── docs/                # Salida renderizada del sitio/dashboard Quarto
-│   └── ...
-├── .gitignore
-├── LICENSE
-└── README.md
+3. Levanta la interfaz web:
+```bash
+streamlit run app.py
 ```
-
----
-
-## Requisitos
-
-- **R** (≥ 4.x) con paquetes: `tidyverse`, `reticulate`, `knitr`, `bslib`, `plotly`, `reactable`, etc.
-- **Python** (3.x) con `scikit-learn`, `pandas`, `numpy` (recomendado: entorno `r-reticulate` para uso desde R).
-- **Quarto** CLI para renderizar reportes y dashboard.
-
-## Uso
-
-1. Colocar datos de entrada en `data/raw/` (o ajustar rutas en `scripts/01_ingest.R`).
-2. Ejecutar en orden: `01_ingest.R` → `02_audit_ml.qmd` → `03_models.R`.
-3. Renderizar el dashboard: desde la raíz, `quarto render dashboard/` o publicar en `docs/`.
-
----
 
 ## Licencia
 
